@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>Christos Balaktsis</h1>
-        <p>Research Assistant on Big Data Management</p>
+        <p>Researcher on Big Data Management</p>
         <nav>
             <ul>
                 <li><a href="#about">About</a></li>
@@ -20,34 +20,78 @@
     </header>
     <section id="about">
         <h2>About Me</h2>
-        <p>I'm a PhD candidate at Aristotle University of Thessaloniki, specializing in Data Engineering, Process Science, Pattern Mining, and Event Stream Analysis. I work as a Big-Data Engineer and Researcher at Datalab - Data and Web Science Lab.</p>
+        <p>I'm a PhD candidate at Aristotle University of Thessaloniki (AUTh), specializing in Big Data management, Process Science, and Pattern Mining. I work as a Data Engineer and Researcher at Datalab - Data and Web Science Lab, at School of Informatics of AUTh.</p>
     </section>
     <section id="projects">
         <h2>Projects</h2>
-        <div class="project">
-            <h3>StudentCompanion</h3>
-            <p>A mobile app providing a range of features directly to Aristotle University students.</p>
-            <a href="https://github.com/acmauth/StudentCompanion" target="_blank">View on GitHub</a>
-        </div>
-        <div class="project">
-            <h3>SequenceDetectionQueryExecutor</h3>
-            <p>A tool for executing sequence detection queries.</p>
-            <a href="https://github.com/balaktsis/SequenceDetectionQueryExecutor" target="_blank">View on GitHub</a>
-        </div>
-        <div class="project">
-            <h3>DeclareIncremental</h3>
-            <p>A project related to the SIESTA tool for incremental Declare models.</p>
-            <a href="https://github.com/siesta-tool/DeclareIncremental" target="_blank">View on GitHub</a>
+        <div class="projects-grid">
+            <div class="project">
+                <img src="assets/aristomate.png" alt="Aristomate logo">
+                <div>
+                    <h3>Aristomate</h3>
+                    <p>A mobile app providing a range of features directly to Aristotle University students.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/acmauth/StudentCompanion" target="_blank">
+                            <img src="assets/github.png" alt="View on GitHub" style="width: 24px; height: 24px;">
+                        </a>
+                        <a href="https://aristomate.gr" target="_blank">
+                            <img src="assets/web.png" alt="View on web" style="width: 24px; height: 24px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="project">
+                <img style="scale:80%" src="assets/siesta-small.png" alt="SIESTA">
+                <div>
+                    <h3>SIESTA</h3>
+                    <p>A highly scalable infrastructure designed for performing pattern analysis in large volumes of event logs.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/acmauth/StudentCompanion" target="_blank">
+                            <img src="assets/github.png" alt="View on GitHub" style="width: 24px; height: 24px;">
+                        </a>
+                        <a href="https://datalab.csd.auth.gr/tools-apps/siesta/" target="_blank">
+                            <img src="assets/web.png" alt="View on web" style="width: 24px; height: 24px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="project">
+                <div>
+                    <h3>Temporal Violations Detector</h3>
+                    <p>An approach to decect temporal violations across event log entries, focused on BPM community cases. It was also integrated in both Query Executor and Incremental Miner components of SIESTA.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/balaktsis/Temporal-Patterns-Analysis" target="_blank">
+                            <img src="assets/github.png" alt="View on GitHub" style="width: 24px; height: 24px;">
+                        </a>
+                        <a href="https://github.com/siesta-tool/DeclareIncremental" target="_blank">
+                            <img src="assets/github.png" alt="View on GitHub" style="width: 24px; height: 24px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="project">
+                <div>
+                    <h3>Advanced K-means extraction with Spark</h3>
+                    <p>An implementaion for k-means extraction on a given dataset with high sensetivity in outliers. The approach is utilizing Apache Spark and hierachical clustering techniques.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/balaktsis/datamining-apache-spark-project/" target="_blank">
+                            <img src="assets/github.png" alt="View on GitHub" style="width: 24px; height: 24px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     <section id="contact">
         <h2>Contact</h2>
-        <p>Email: <a href="mailto:balaktsis@csd.auth.gr">balaktsis@csd.auth.gr</a></p>
-        <p>LinkedIn: <a href="https://www.linkedin.com/in/christosbalaktsis" target="_blank">linkedin.com/in/christosbalaktsis</a></p>
+        <ul class="contact-list">
+            <li><i class="fas fa-envelope"></i> <a href="mailto:balaktsis@csd.auth.gr">balaktsis@csd.auth.gr</a></li>
+            <li><i class="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/christosbalaktsis" target="_blank">linkedin.com/in/christosbalaktsis</a></li>
+            <li><i class="fas fa-map-marker-alt"></i> Office 13, Ethnikis Antistaseos 16, Floor 2, School of Informatics, AUTh</li>
+        </ul>
     </section>
     <footer>
         <p>&copy; 2025 Christos Balaktsis</p>
     </footer>
-    <script src="scripts.js"></script>
 </body>
 </html>

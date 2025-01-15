@@ -3,11 +3,12 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.6;
+    background-color: #f0f8ff; /* Light blue background */
 }
 
 header {
-    background: #333;
-    color: #fff;
+    background: #003366; /* Dark blue */
+    color: #ffffff;
     padding: 1rem 0;
     text-align: center;
 }
@@ -31,7 +32,7 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
 }
 
@@ -40,22 +41,49 @@ section {
     margin: 1rem 0;
 }
 
+#projects h2, #contact h2 {
+    color: #003366;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
 .project {
-    border: 1px solid #ddd;
+    border: 1px solid #cce7ff; /* Light blue border */
+    background: #e6f2ff; /* Very light blue */
     padding: 1rem;
-    margin: 1rem 0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.project img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .project h3 {
     margin-top: 0;
+    color: #003366;
 }
 
+.project-links {
+    display: flex;
+    gap: 1rem; /* Adjust space between links */
+    align-items: center; /* Align items vertically if needed */
+    justify-content: flex-start; /* Adjust horizontal alignment */
+}
+
+
 footer {
-    background: #333;
-    color: #fff;
+    background: #003366;
+    color: #ffffff;
     text-align: center;
-    padding: 1rem 0;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
+    padding: 0.5rem 0;
 }
