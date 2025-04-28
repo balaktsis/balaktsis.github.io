@@ -87,3 +87,53 @@ footer {
     text-align: center;
     padding: 0.5rem 0;
 }
+
+/* Publications section */
+#publications {
+    padding: 40px 20px;
+    background-color: #f9f9f9; /* Light background to distinguish */
+}
+
+#publications h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.publications-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.publications-list li {
+    background: #fff;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-left: 4px solid #007acc; /* Accent color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.publications-list strong {
+    font-size: 1.2em;
+}
+
+.publications-list em {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-style: italic;
+}
+
+.publications-list a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007acc;
+    text-decoration: none;
+}
+
+.publications-list a:hover {
+    text-decoration: underline;
+}
+
