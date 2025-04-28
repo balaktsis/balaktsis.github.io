@@ -88,52 +88,36 @@ footer {
     padding: 0.5rem 0;
 }
 
-/* Publications section */
-#publications {
-    padding: 40px 20px;
-    background-color: #f9f9f9; /* Light background to distinguish */
-}
 
 #publications h2 {
-    font-size: 2em;
-    margin-bottom: 20px;
-    text-align: center;
+    color: #003366;
 }
 
 .publications-list {
-    list-style: none;
-    padding: 0;
-    max-width: 800px;
-    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
 }
 
-.publications-list li {
-    background: #fff;
-    margin-bottom: 20px;
-    padding: 20px;
-    border-left: 4px solid #007acc; /* Accent color */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.publication {
+    border: 1px solid #cce7ff;
+    background: #e6f2ff;
+    padding: 1rem;
+    border-radius: 8px;
 }
 
-.publications-list strong {
-    font-size: 1.2em;
+.publication p {
+    margin: 0;
+    color: #000000;
+    line-height: 1.5;
 }
 
-.publications-list em {
-    display: block;
-    margin-top: 5px;
-    color: #666;
-    font-style: italic;
-}
-
-.publications-list a {
+.publication a {
     display: inline-block;
-    margin-top: 10px;
-    color: #007acc;
+    margin-top: 0.5rem;
+    color: #003366;
     text-decoration: none;
 }
 
-.publications-list a:hover {
+.publication a:hover {
     text-decoration: underline;
 }
-
