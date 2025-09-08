@@ -71,6 +71,7 @@ def fetch_publications():
                 # For conference papers, prioritize conference name over publisher
                 venue = (bib.get('journal', '') or 
                         bib.get('conference', '') or  # Add conference field
+                        bib.get('citation', '') or
                         bib.get('booktitle', '') or  # Add booktitle field which often contains conference name
                         bib.get('venue', '') or 
                         bib.get('book', '') or
