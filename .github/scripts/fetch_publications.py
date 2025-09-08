@@ -1,199 +1,33 @@
 #!/usr/bin/env python3
 import json
 import os
-import time
-from scholarly import scholarly, ProxyGenerator
-import random
-from functools import wraps
-from typing import Optional, Any
-import signal
-import unicodedata
-
-# Default publications that should always be included
-DEFAULT_PUBLICATIONS = [{
-    "title": "Determination of activity duration in business process mining",
-    "authors": "Christos Balaktsis",
-    "venue": "Bachelor Thesis, Aristotle University of Thessaloniki",
-    "year": 2024,
-    "link": "https://ikee.lib.auth.gr/record/358500"
-}]
-
-def contains_greek(text: str) -> bool:
-    """Check if the text contains any Greek characters."""
-    for char in text:
-        if unicodedata.name(char, '').startswith('GREEK'):
-            return True
-    return False
+from scholarly import scholarly
 
 # Your Google Scholar ID
 SCHOLAR_ID = "SC5NdrAAAAAJ"
 
-class TimeoutError(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutError("Operation timed out")
-
-def with_timeout(seconds: int):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Set the timeout handler
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(seconds)
-            try:
-                result = func(*args, **kwargs)
-            finally:
-                # Disable the alarm
-                signal.alarm(0)
-            return result
-        return wrapper
-    return decorator
-
-def retry_with_backoff(retries: int = 3, backoff_in_seconds: int = 1):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            x = 0
-            while True:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    if x == retries:
-                        raise e
-                    sleep_time = (backoff_in_seconds * 2 ** x + 
-                                random.uniform(0, 1))
-                    time.sleep(sleep_time)
-                    x += 1
-        return wrapper
-    return decorator
-
-@retry_with_backoff(retries=3)
-def setup_scholarly() -> bool:
-    """Set up scholarly with custom settings to improve reliability"""
-    try:
-        # Use default settings without proxy to avoid compatibility issues
-        scholarly.set_timeout(15)
-        return True
-    except Exception as e:
-        print(f"Error setting up scholarly: {str(e)}")
-        return False
-
-@retry_with_backoff(retries=3)
-@with_timeout(60)  # Set a 60-second timeout for the entire operation
 def fetch_publications():
-    publications = []
-    try:
-        # Try to load existing publications as fallback
-        try:
-            with open('publications.json', 'r', encoding='utf-8') as f:
-                existing_data = json.load(f)
-                publications = existing_data.get('publications', [])
-                print(f"Loaded {len(publications)} publications from existing file as backup")
-        except (FileNotFoundError, json.JSONDecodeError):
-            print("No existing publications file found or file is invalid")
-            pass
-
-        # Get author data with retries
-        author = scholarly.search_author_id(SCHOLAR_ID)
-        if not author:
-            raise ValueError(f"Could not find author with ID: {SCHOLAR_ID}")
-            
-        scholarly.fill(author, sections=['publications'])
-        
-        if not author.get('publications'):
-            raise ValueError("No publications found in author data")
-            
-        # Extract publication information
-        new_publications = []
-        print(f"Processing {len(author['publications'])} publications...")
-        for i, pub in enumerate(author['publications'], 1):
-            try:
-                with_timeout(10)(scholarly.fill)(pub)  # 10-second timeout per publication
-                
-                # Verify we have the basic publication data
-                if not pub.get('bib'):
-                    print(f"Warning: Publication {i} has no bibliographic data, skipping")
-                    continue
-                    
-                # Get venue with better fallbacks
-                bib = pub.get('bib', {})
-                # For conference papers, prioritize conference name over publisher
-                venue = (bib.get('journal', '') or 
-                        bib.get('conference', '') or  # Add conference field
-                        bib.get('citation', '') or 
-                        bib.get('booktitle', '') or  # Add booktitle field which often contains conference name
-                        bib.get('container', '') or  # Add container field
-                        bib.get('venue', '') or 
-                        bib.get('book', '') or
-                        bib.get('publisher', ''))
-                
-                # Format authors by replacing 'and' with commas
-                authors = pub.get('bib', {}).get('author', '')
-                if authors:
-                    authors = authors.replace(' and ', ', ')
-                
-                pub_data = {
-                    'title': pub.get('bib', {}).get('title', ''),
-                    'authors': authors,
-                    'venue': venue,
-                    'year': pub.get('bib', {}).get('pub_year', ''),
-                    'link': pub.get('pub_url', '')
-                }
-                
-                # Only add publications that have a title and are not in Greek
-                if pub_data['title']:
-                    if contains_greek(pub_data['title']):
-                        print(f"Skipping publication {i} as it contains Greek characters: {pub_data['title'][:50]}...")
-                    else:
-                        new_publications.append(pub_data)
-                        print(f"Successfully processed publication: {pub_data['title'][:50]}...")
-                else:
-                    print(f"Warning: Publication {i} has no title, skipping")
-            except (TimeoutError, Exception) as e:
-                print(f"Warning: Failed to fetch publication {i} details: {str(e)}")
-                continue
-        
-        # Start with default publications
-        final_publications = DEFAULT_PUBLICATIONS.copy()
-        
-        # Add any new publications that aren't in the defaults
-        default_titles = {pub['title'] for pub in DEFAULT_PUBLICATIONS}
-        for pub in new_publications:
-            if pub['title'] not in default_titles:
-                final_publications.append(pub)
-        
-        # Always save the combined publications
-        with open('publications.json', 'w', encoding='utf-8') as f:
-            json.dump({'publications': final_publications}, f, ensure_ascii=False, indent=2)
-        print(f"Successfully saved {len(final_publications)} publications "
-              f"({len(DEFAULT_PUBLICATIONS)} default + {len(final_publications) - len(DEFAULT_PUBLICATIONS)} fetched)")
-            
-    except TimeoutError:
-        print("Operation timed out. Saving default publications.")
-        with open('publications.json', 'w', encoding='utf-8') as f:
-            json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"Error fetching from Google Scholar: {str(e)}")
-        print("Saving default publications.")
-        with open('publications.json', 'w', encoding='utf-8') as f:
-            json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
+    # Get author data
+    author = scholarly.search_author_id(SCHOLAR_ID)
+    scholarly.fill(author, sections=['publications'])
     
-    print(f"Final publication count: {len(publications)}")
+    # Extract publication information
+    publications = []
+    for pub in author['publications']:
+        scholarly.fill(pub)
+        publications.append({
+            'title': pub.get('bib', {}).get('title', ''),
+            'authors': pub.get('bib', {}).get('author', ''),
+            'venue': pub.get('bib', {}).get('journal', '') or pub.get('bib', {}).get('venue', ''),
+            'year': pub.get('bib', {}).get('pub_year', ''),
+            'link': pub.get('pub_url', '')
+        })
+    
+    # Save to publications.json
+    with open('publications.json', 'w', encoding='utf-8') as f:
+        json.dump({'publications': publications}, f, ensure_ascii=False, indent=2)
+    
+    print(f"Saved {len(publications)} publications to publications.json")
 
 if __name__ == "__main__":
-    try:
-        if setup_scholarly():
-            fetch_publications()
-        else:
-            print("Failed to set up scholarly. Using existing publications data.")
-            # Try to use existing data
-            try:
-                with open('publications.json', 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    print(f"Found {len(data.get('publications', []))} publications in existing data")
-            except (FileNotFoundError, json.JSONDecodeError) as e:
-                print(f"Error reading existing publications: {str(e)}")
-    except Exception as e:
-        print(f"Fatal error: {str(e)}")
-        exit(1)
+    fetch_publications()
