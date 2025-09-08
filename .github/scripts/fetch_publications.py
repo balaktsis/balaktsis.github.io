@@ -55,25 +55,7 @@ def retry_with_backoff(retries: int = 3, backoff_in_seconds: int = 1):
 def setup_scholarly() -> bool:
     """Set up scholarly with custom settings to improve reliability"""
     try:
-        # Try different proxy methods
-        pg = ProxyGenerator()
-        proxy_success = False
-        
-        # Try different proxy methods in sequence
-        if pg.FreeProxies():
-            proxy_success = True
-        elif pg.Tor_External(tor_sock_port=9050, tor_control_port=9051):
-            proxy_success = True
-        elif pg.ScraperAPI():
-            proxy_success = True
-
-        # Only use proxy if we successfully set one up
-        if proxy_success:
-            scholarly.use_proxy(pg)
-        else:
-            print("Warning: No proxy method succeeded, trying without proxy")
-        
-        # Set shorter timeout for operations
+        # Use default settings without proxy to avoid compatibility issues
         scholarly.set_timeout(15)
         return True
     except Exception as e:
