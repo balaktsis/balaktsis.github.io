@@ -78,8 +78,18 @@ function fetchPublications() {
       // Clear loading indicator
       loadingElement.style.display = 'none';
       
+      // Sort publications by year (descending) and title (ascending)
+      const sortedPublications = publications.sort((a, b) => {
+        // First sort by year descending
+        if (b.year !== a.year) {
+          return b.year - a.year;
+        }
+        // If years are equal, sort by title ascending
+        return a.title.localeCompare(b.title);
+      });
+
       // Process each publication
-      publications.forEach(pub => {
+      sortedPublications.forEach(pub => {
         const publicationEl = document.createElement('div');
         publicationEl.className = 'publication';
         publicationEl.innerHTML = `

@@ -95,12 +95,10 @@ def fetch_publications():
             pass
 
         # Get author data with retries
-        print(f"Searching for author with ID: {SCHOLAR_ID}")
         author = scholarly.search_author_id(SCHOLAR_ID)
         if not author:
             raise ValueError(f"Could not find author with ID: {SCHOLAR_ID}")
             
-        print("Found author, fetching publications...")
         scholarly.fill(author, sections=['publications'])
         
         if not author.get('publications'):
@@ -111,7 +109,6 @@ def fetch_publications():
         print(f"Processing {len(author['publications'])} publications...")
         for i, pub in enumerate(author['publications'], 1):
             try:
-                print(f"Fetching details for publication {i}...")
                 with_timeout(10)(scholarly.fill)(pub)  # 10-second timeout per publication
                 
                 # Verify we have the basic publication data
@@ -124,10 +121,11 @@ def fetch_publications():
                 # For conference papers, prioritize conference name over publisher
                 venue = (bib.get('journal', '') or 
                         bib.get('conference', '') or  # Add conference field
+                        bib.get('citation', '') or 
                         bib.get('booktitle', '') or  # Add booktitle field which often contains conference name
+                        bib.get('container', '') or  # Add container field
                         bib.get('venue', '') or 
                         bib.get('book', '') or
-                        bib.get('container', '') or  # Add container field
                         bib.get('publisher', ''))
                 
                 # Format authors by replacing 'and' with commas
