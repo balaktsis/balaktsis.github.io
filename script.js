@@ -47,6 +47,7 @@ function fetchPublications() {
   const publicationsContainer = document.querySelector('.publications-list');
   const loadingElement = document.querySelector('.publications-loading');
   const errorElement = document.querySelector('.publications-error');
+  const fallbackElement = document.querySelector('.publications-fallback');
   
   // For GitHub Pages, we'll use a pre-generated JSON file approach instead of direct API calls
   // This simulates fetching from an API but actually uses local data that you would update periodically
@@ -94,8 +95,9 @@ function fetchPublications() {
     .catch(error => {
       console.error('Error fetching publications:', error);
       
-      // Show error message
+      // Show fallback content instead
       loadingElement.style.display = 'none';
       errorElement.style.display = 'block';
+      fallbackElement.style.display = 'grid';
     });
 }
