@@ -65,5 +65,5 @@ def fetch_publications():
     print(f"Saved {len(publications)} publications to publications.json")
 
 if __name__ == "__main__":
-    setup_scholarly()
-    fetch_publications()
+    if setup_scholarly():
+        fetch_publications()
