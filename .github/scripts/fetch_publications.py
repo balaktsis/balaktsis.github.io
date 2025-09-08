@@ -30,6 +30,7 @@ SCHOLAR_ID = "SC5NdrAAAAAJ"
 
 def fetch_publications():
     publications = []
+    print("Fetching data for author")
     try:
         # Try to load existing publications as fallback
         try:
