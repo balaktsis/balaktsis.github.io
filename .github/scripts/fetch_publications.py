@@ -72,18 +72,36 @@ def fetch_publications():
             with open('publications.json', 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
                 publications = existing_data.get('publications', [])
+                print(f"Loaded {len(publications)} publications from existing file as backup")
         except (FileNotFoundError, json.JSONDecodeError):
+            print("No existing publications file found or file is invalid")
             pass
 
-        # Get author data
+        # Get author data with retries
+        print(f"Searching for author with ID: {SCHOLAR_ID}")
         author = scholarly.search_author_id(SCHOLAR_ID)
+        if not author:
+            raise ValueError(f"Could not find author with ID: {SCHOLAR_ID}")
+            
+        print("Found author, fetching publications...")
         scholarly.fill(author, sections=['publications'])
         
+        if not author.get('publications'):
+            raise ValueError("No publications found in author data")
+            
         # Extract publication information
         new_publications = []
-        for pub in author['publications']:
+        print(f"Processing {len(author['publications'])} publications...")
+        for i, pub in enumerate(author['publications'], 1):
             try:
+                print(f"Fetching details for publication {i}...")
                 with_timeout(10)(scholarly.fill)(pub)  # 10-second timeout per publication
+                
+                # Verify we have the basic publication data
+                if not pub.get('bib'):
+                    print(f"Warning: Publication {i} has no bibliographic data, skipping")
+                    continue
+                    
                 # Get venue with fallbacks
                 venue = (pub.get('bib', {}).get('journal', '') or 
                         pub.get('bib', {}).get('venue', '') or 
@@ -92,17 +110,25 @@ def fetch_publications():
                 
                 # Format authors by replacing 'and' with commas
                 authors = pub.get('bib', {}).get('author', '')
-                authors = authors.replace(' and ', ', ')
+                if authors:
+                    authors = authors.replace(' and ', ', ')
                 
-                new_publications.append({
+                pub_data = {
                     'title': pub.get('bib', {}).get('title', ''),
                     'authors': authors,
                     'venue': venue,
                     'year': pub.get('bib', {}).get('pub_year', ''),
                     'link': pub.get('pub_url', '')
-                })
+                }
+                
+                # Only add publications that have at least a title
+                if pub_data['title']:
+                    new_publications.append(pub_data)
+                    print(f"Successfully processed publication: {pub_data['title'][:50]}...")
+                else:
+                    print(f"Warning: Publication {i} has no title, skipping")
             except (TimeoutError, Exception) as e:
-                print(f"Warning: Failed to fetch publication details: {str(e)}")
+                print(f"Warning: Failed to fetch publication {i} details: {str(e)}")
                 continue
         
         # Update publications if we got new ones
