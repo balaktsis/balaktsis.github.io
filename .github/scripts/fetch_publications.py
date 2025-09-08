@@ -7,6 +7,23 @@ import random
 from functools import wraps
 from typing import Optional, Any
 import signal
+import unicodedata
+
+# Default publications that should always be included
+DEFAULT_PUBLICATIONS = [{
+    "title": "Determination of activity duration in business process mining",
+    "authors": "Christos Balaktsis",
+    "venue": "Bachelor Thesis, Aristotle University of Thessaloniki",
+    "year": 2024,
+    "link": "https://ikee.lib.auth.gr/record/358500"
+}]
+
+def contains_greek(text: str) -> bool:
+    """Check if the text contains any Greek characters."""
+    for char in text:
+        if unicodedata.name(char, '').startswith('GREEK'):
+            return True
+    return False
 
 # Your Google Scholar ID
 SCHOLAR_ID = "SC5NdrAAAAAJ"
@@ -102,11 +119,16 @@ def fetch_publications():
                     print(f"Warning: Publication {i} has no bibliographic data, skipping")
                     continue
                     
-                # Get venue with fallbacks
-                venue = (pub.get('bib', {}).get('journal', '') or 
-                        pub.get('bib', {}).get('venue', '') or 
-                        pub.get('bib', {}).get('book', '') or 
-                        pub.get('bib', {}).get('publisher', ''))
+                # Get venue with better fallbacks
+                bib = pub.get('bib', {})
+                # For conference papers, prioritize conference name over publisher
+                venue = (bib.get('journal', '') or 
+                        bib.get('conference', '') or  # Add conference field
+                        bib.get('booktitle', '') or  # Add booktitle field which often contains conference name
+                        bib.get('venue', '') or 
+                        bib.get('book', '') or
+                        bib.get('container', '') or  # Add container field
+                        bib.get('publisher', ''))
                 
                 # Format authors by replacing 'and' with commas
                 authors = pub.get('bib', {}).get('author', '')
@@ -121,30 +143,43 @@ def fetch_publications():
                     'link': pub.get('pub_url', '')
                 }
                 
-                # Only add publications that have at least a title
+                # Only add publications that have a title and are not in Greek
                 if pub_data['title']:
-                    new_publications.append(pub_data)
-                    print(f"Successfully processed publication: {pub_data['title'][:50]}...")
+                    if contains_greek(pub_data['title']):
+                        print(f"Skipping publication {i} as it contains Greek characters: {pub_data['title'][:50]}...")
+                    else:
+                        new_publications.append(pub_data)
+                        print(f"Successfully processed publication: {pub_data['title'][:50]}...")
                 else:
                     print(f"Warning: Publication {i} has no title, skipping")
             except (TimeoutError, Exception) as e:
                 print(f"Warning: Failed to fetch publication {i} details: {str(e)}")
                 continue
         
-        # Update publications if we got new ones
-        if new_publications:
-            publications = new_publications
-            with open('publications.json', 'w', encoding='utf-8') as f:
-                json.dump({'publications': publications}, f, ensure_ascii=False, indent=2)
-            print(f"Successfully fetched and saved {len(publications)} publications")
-        else:
-            print("No new publications found from Google Scholar, using existing data")
+        # Start with default publications
+        final_publications = DEFAULT_PUBLICATIONS.copy()
+        
+        # Add any new publications that aren't in the defaults
+        default_titles = {pub['title'] for pub in DEFAULT_PUBLICATIONS}
+        for pub in new_publications:
+            if pub['title'] not in default_titles:
+                final_publications.append(pub)
+        
+        # Always save the combined publications
+        with open('publications.json', 'w', encoding='utf-8') as f:
+            json.dump({'publications': final_publications}, f, ensure_ascii=False, indent=2)
+        print(f"Successfully saved {len(final_publications)} publications "
+              f"({len(DEFAULT_PUBLICATIONS)} default + {len(final_publications) - len(DEFAULT_PUBLICATIONS)} fetched)")
             
     except TimeoutError:
-        print("Operation timed out. Using existing publications data.")
+        print("Operation timed out. Saving default publications.")
+        with open('publications.json', 'w', encoding='utf-8') as f:
+            json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Error fetching from Google Scholar: {str(e)}")
-        print("Using existing publications data as fallback")
+        print("Saving default publications.")
+        with open('publications.json', 'w', encoding='utf-8') as f:
+            json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
     
     print(f"Final publication count: {len(publications)}")
 
