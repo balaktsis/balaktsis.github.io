@@ -31,7 +31,10 @@ jobs:
           pip install scholarly requests
           
       - name: Fetch publications from Google Scholar
-        run: python .github/scripts/fetch_publications.py
+        run: |
+          # Set a timeout for the Python script to prevent hanging
+          timeout 120s python .github/scripts/fetch_publications.py || echo "Script timed out, but continuing workflow"
+        continue-on-error: true
         
       - name: Commit and push if changed
         run: |
