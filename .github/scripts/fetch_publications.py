@@ -2,7 +2,7 @@
 import json
 import os
 import time
-from scholarly import scholarly, ProxyGenerator
+from scholarly import scholarly
 import random
 from functools import wraps
 from typing import Optional, Any
@@ -60,7 +60,6 @@ def fetch_publications():
         for i, pub in enumerate(author['publications'], 1):
             try:
                 print(f"Fetching details for publication {i}...")
-                with_timeout(10)(scholarly.fill)(pub)  # 10-second timeout per publication
                 
                 # Verify we have the basic publication data
                 if not pub.get('bib'):
@@ -137,13 +136,10 @@ if __name__ == "__main__":
         fetch_publications()
     except:
             print("Failed to set up scholarly. Using existing publications data.")
-            # Try to use existing data
             try:
                 with open('publications.json', 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     print(f"Found {len(data.get('publications', []))} publications in existing data")
             except (FileNotFoundError, json.JSONDecodeError) as e:
                 print(f"Error reading existing publications: {str(e)}")
-    except Exception as e:
-        print(f"Fatal error: {str(e)}")
-        exit(1)
+                exit(1)
