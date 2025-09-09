@@ -1,10 +1,24 @@
 {
   "publications": [
     {
+      "title": "Discovering Comprehensive Branched Declarative Process Constraints",
+      "authors": "C. Balaktsis, I. Mavroudopoulos, M. Comuzzi, A. Gounaris, F.M. Maggi",
+      "venue": "International Conference on Business Process Management",
+      "year": "2025",
+      "link": "https://doi.org/10.1007/978-3-032-02929-4_9"
+    },
+    {
+      "title": "Declarative process mining in big data scenarios using an application-agnostic framework",
+      "authors": "I. Mavroudopoulos, C. Balaktsis, K. Varvoutas, G. Kougka, A. Gounaris, M. Comuzzi",
+      "venue": "Process Science, Volume 2, Article 6",
+      "year": "2025",
+      "link": "https://doi.org/10.1007/s44311-025-00013-9"
+    },
+    {
       "title": "Determination of activity duration in business process mining",
-      "authors": "Christos Balaktsis",
+      "authors": "C. Balaktsis",
       "venue": "Bachelor Thesis, Aristotle University of Thessaloniki",
-      "year": 2024,
+      "year": "2024",
       "link": "https://ikee.lib.auth.gr/record/358500"
     }
   ]
