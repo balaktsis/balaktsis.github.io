@@ -9,6 +9,26 @@ from typing import Optional, Any
 import signal
 import unicodedata
 
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Operation timed out")
+
+def with_timeout(seconds: int):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+        return wrapper
+    return decorator
+
 # Default publications that should always be included
 DEFAULT_PUBLICATIONS = [{
     "title": "Determination of activity duration in business process mining",
@@ -28,6 +48,7 @@ def contains_greek(text: str) -> bool:
 # Your Google Scholar ID
 SCHOLAR_ID = "SC5NdrAAAAAJ"
 
+@with_timeout(180)  # 3-minute timeout for the entire operation
 def fetch_publications():
     publications = []
     print("Fetching data for author")
@@ -63,7 +84,8 @@ def fetch_publications():
                     print(f"Warning: Publication {i} has no bibliographic data, skipping")
                     continue
 
-                scholarly.fill(pub)    
+                # Add timeout to each publication fetch
+                with_timeout(30)(scholarly.fill)(pub)    
                 # Get venue with better fallbacks
                 bib = pub.get('bib', {})
                 # For conference papers, prioritize conference name over publisher
@@ -133,14 +155,16 @@ def fetch_publications():
     print(f"Final publication count: {len(publications)}")
 
 if __name__ == "__main__":
+    print("Starting publication fetch script...")
     try: 
         fetch_publications()
-    except:
-            print("Failed to set up scholarly. Using existing publications data.")
-            try:
-                with open('publications.json', 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    print(f"Found {len(data.get('publications', []))} publications in existing data")
-            except (FileNotFoundError, json.JSONDecodeError) as e:
-                print(f"Error reading existing publications: {str(e)}")
-                exit(1)
+    except Exception as e:
+        print(f"Fatal error during fetch: {str(e)}")
+        print("Saving default publications as fallback...")
+        try:
+            with open('publications.json', 'w', encoding='utf-8') as f:
+                json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
+            print(f"Saved {len(DEFAULT_PUBLICATIONS)} default publications")
+        except Exception as save_error:
+            print(f"Error saving default publications: {str(save_error)}")
+            exit(1)

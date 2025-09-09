@@ -31,7 +31,11 @@ jobs:
           pip install scholarly requests
           
       - name: Fetch publications from Google Scholar
-        run: python .github/scripts/fetch_publications.py
+        timeout-minutes: 5  # Set a 5-minute timeout
+        run: |
+          echo "Starting publication fetch..."
+          timeout 300 python .github/scripts/fetch_publications.py || echo "Script timed out or failed, continuing with default publications"
+          echo "Publication fetch completed"
         
       - name: Commit and push if changed
         run: |
