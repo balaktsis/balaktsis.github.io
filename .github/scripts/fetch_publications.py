@@ -52,10 +52,8 @@ def fetch_publications():
         
         if not author.get('publications'):
             raise ValueError("No publications found in author data")
-            
-        # Extract publication information
+                    
         new_publications = []
-        print(f"Processing {len(author['publications'])} publications...")
         for i, pub in enumerate(author['publications'], 1):
             try:
                 print(f"Fetching details for publication {i}...")
@@ -64,7 +62,8 @@ def fetch_publications():
                 if not pub.get('bib'):
                     print(f"Warning: Publication {i} has no bibliographic data, skipping")
                     continue
-                    
+
+                scholarly.fill(pub)    
                 # Get venue with better fallbacks
                 bib = pub.get('bib', {})
                 # For conference papers, prioritize conference name over publisher
@@ -77,16 +76,19 @@ def fetch_publications():
                         bib.get('container', '') or  # Add container field
                         bib.get('publisher', ''))
                 
+                if venue:
+                    venue = venue.replace('\n', ' ').strip().split(',')[0]
+                
                 # Format authors by replacing 'and' with commas
-                authors = pub.get('bib', {}).get('author', '')
+                authors = bib.get('author', '')
                 if authors:
                     authors = authors.replace(' and ', ', ')
                 
                 pub_data = {
-                    'title': pub.get('bib', {}).get('title', ''),
+                    'title': bib.get('title', ''),
                     'authors': authors,
                     'venue': venue,
-                    'year': pub.get('bib', {}).get('pub_year', ''),
+                    'year': bib.get('pub_year', ''),
                     'link': pub.get('pub_url', '')
                 }
                 
