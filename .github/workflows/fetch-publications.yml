@@ -1,4 +1,4 @@
-name: Update Publications
+name: Fetch Publications
 
 on:
   schedule:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  update-publications:
+  fetch-publications:
     runs-on: ubuntu-latest
     
     steps:
