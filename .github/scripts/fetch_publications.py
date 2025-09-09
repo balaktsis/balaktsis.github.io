@@ -9,6 +9,8 @@ from typing import Optional, Any
 import signal
 import unicodedata
 
+
+
 class TimeoutError(Exception):
     pass
 
@@ -47,6 +49,9 @@ def contains_greek(text: str) -> bool:
 
 # Your Google Scholar ID
 SCHOLAR_ID = "SC5NdrAAAAAJ"
+
+
+
 
 @with_timeout(180)  # 3-minute timeout for the entire operation
 def fetch_publications():
@@ -154,17 +159,9 @@ def fetch_publications():
     
     print(f"Final publication count: {len(publications)}")
 
-if __name__ == "__main__":
-    print("Starting publication fetch script...")
-    try: 
-        fetch_publications()
-    except Exception as e:
-        print(f"Fatal error during fetch: {str(e)}")
-        print("Saving default publications as fallback...")
-        try:
-            with open('publications.json', 'w', encoding='utf-8') as f:
-                json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
-            print(f"Saved {len(DEFAULT_PUBLICATIONS)} default publications")
-        except Exception as save_error:
-            print(f"Error saving default publications: {str(save_error)}")
-            exit(1)
+
+print("Starting publication fetch script...")
+try: 
+    fetch_publications()
+except Exception as e:
+    print(f"Fatal error during fetch: {str(e)}")
