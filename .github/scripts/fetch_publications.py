@@ -2,6 +2,7 @@
 import json
 import os
 import time
+import sys
 from scholarly import scholarly
 import random
 from functools import wraps
@@ -9,22 +10,29 @@ from typing import Optional, Any
 import signal
 import unicodedata
 
-
+# Ensure output is flushed immediately
+sys.stdout.reconfigure(line_buffering=True)
 
 class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
+    print("TIMEOUT: Operation timed out!")
+    sys.stdout.flush()
     raise TimeoutError("Operation timed out")
 
 def with_timeout(seconds: int):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            print(f"Setting timeout for {seconds} seconds...")
+            sys.stdout.flush()
             signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(seconds)
             try:
                 result = func(*args, **kwargs)
+                print(f"Operation completed within {seconds} seconds")
+                sys.stdout.flush()
             finally:
                 signal.alarm(0)
             return result
@@ -56,20 +64,29 @@ SCHOLAR_ID = "SC5NdrAAAAAJ"
 @with_timeout(180)  # 3-minute timeout for the entire operation
 def fetch_publications():
     publications = []
-    print("Fetching data for author")
+    print("=== STARTING FETCH PUBLICATIONS ===")
+    sys.stdout.flush()
+    
+    # Always ensure we save the default publications no matter what
+    print("Ensuring default publications are available...")
+    with open('publications.json', 'w', encoding='utf-8') as f:
+        json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
+    print("Default publications saved successfully")
+    sys.stdout.flush()
+    
     try:
-        # Try to load existing publications as fallback
-        try:
-            with open('publications.json', 'r', encoding='utf-8') as f:
-                existing_data = json.load(f)
-                publications = existing_data.get('publications', [])
-                print(f"Loaded {len(publications)} publications from existing file as backup")
-        except (FileNotFoundError, json.JSONDecodeError):
-            print("No existing publications file found or file is invalid")
-
+        print("Attempting to fetch from Google Scholar...")
+        sys.stdout.flush()
+        
         # Get author data with retries
         print(f"Searching for author with ID: {SCHOLAR_ID}")
+        sys.stdout.flush()
         author = scholarly.search_author_id(SCHOLAR_ID)
+        if not author:
+            raise ValueError(f"Could not find author with ID: {SCHOLAR_ID}")
+            
+        print("Found author, fetching publications...")
+        sys.stdout.flush()
         if not author:
             raise ValueError(f"Could not find author with ID: {SCHOLAR_ID}")
             
@@ -157,11 +174,26 @@ def fetch_publications():
         with open('publications.json', 'w', encoding='utf-8') as f:
             json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
     
-    print(f"Final publication count: {len(publications)}")
+    print(f"Final publication count complete.")
+    sys.stdout.flush()
 
-
-print("Starting publication fetch script...")
-try: 
-    fetch_publications()
-except Exception as e:
-    print(f"Fatal error during fetch: {str(e)}")
+if __name__ == "__main__":
+    print("Starting publication fetch script...")
+    sys.stdout.flush()
+    try: 
+        fetch_publications()
+        print("Script completed successfully!")
+        sys.stdout.flush()
+    except Exception as e:
+        print(f"Fatal error during fetch: {str(e)}")
+        print("Saving default publications as fallback...")
+        sys.stdout.flush()
+        try:
+            with open('publications.json', 'w', encoding='utf-8') as f:
+                json.dump({'publications': DEFAULT_PUBLICATIONS}, f, ensure_ascii=False, indent=2)
+            print(f"Saved {len(DEFAULT_PUBLICATIONS)} default publications")
+            sys.stdout.flush()
+        except Exception as save_error:
+            print(f"Error saving default publications: {str(save_error)}")
+            sys.stdout.flush()
+            exit(1)
