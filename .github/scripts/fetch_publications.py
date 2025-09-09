@@ -40,7 +40,6 @@ def fetch_publications():
                 print(f"Loaded {len(publications)} publications from existing file as backup")
         except (FileNotFoundError, json.JSONDecodeError):
             print("No existing publications file found or file is invalid")
-            pass
 
         # Get author data with retries
         print(f"Searching for author with ID: {SCHOLAR_ID}")
