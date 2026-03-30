@@ -20,6 +20,13 @@
       "venue": "Process Science",
       "year": 2025,
       "link": "https://link.springer.com/article/10.1007/s44311-025-00013-9"
+    },
+    {
+      "title": "A comprehensive scalable framework for cloud-native pattern detection with enhanced expressiveness",
+      "authors": "Ioannis Mavroudopoulos, Christos Balaktsis, Anastasios Gounaris",
+      "venue": "Information Systems",
+      "year": 2026,
+      "link": "https://doi.org/10.1016/j.is.2026.102725"
     }
   ]
 }
